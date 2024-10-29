@@ -1,10 +1,3 @@
-def decode(tkn_ids):
-    return text
-
-def encode(text):
-    tokens = list(text.encode("UTF-8"))
-    return tkn_ids
-
 def map_ids(list_ids):
     top_id = max(list_ids)
     id_matrix = [[0 for _ in range(top_index)] for _ in range(top_index)] # cria uma matriz nxn com 0 para cada elemento
@@ -59,7 +52,7 @@ def train(list_ids, vocab_size):
         merge_target = map_ids(id_lista) # encontra o par que mais se repete
         
         top_id += 1 # com a criação de mais um id pelo merge, aumenta o numero de id
-        merge_script[merge_target] = top_id # o par recebe o maior id atual
+        merge_script[tuple(merge_target)] = top_id # o par como chave recebe o maior id atual como valor
 
         # o segundo id do par será adcionado a lista de adjecencia do primeiro id do par
         id_adj_list[merge_target[0]].append(merge_target[1]) 
@@ -70,12 +63,28 @@ def train(list_ids, vocab_size):
     return merge_script, id_adj_list
 
 def encode(text, merge_script, id_adj_list):
-    tokens = list(text.encode("UTF-8"))
-    new_tokens = []
-    while True:
-        while i < len(tokens):
-            if tokens[i+1] in id_adj_list[i]:
-                new_tokens.append(merge_script)
+    tokens = list(text.encode("UTF-8")) # encodamento inicial em utf-8
+    total_merges = -1 # recebe -1 para forçar a entrada no while externo
+    itr_merges = 0
 
+    # o while externo será True sempre que tiver acontecido algum merge na iteração anterior
+    while itr_merges != total_merges: 
+        total_merges = itr_merges # caso itr_merges não incremente, ou seja não ocorra novos merges, satisfará a condição de parada
+        new_tokens = []
 
-    return tkn_ids
+        while i < len(tokens): # interage com todos exceto o ultimo valor, para não fugir do escopo
+            if tokens[i+1] in id_adj_list[i]: # verifica se o id atual possui um possivel merge com o proximo id usando a lista de adjecencia
+                new_tokens.append(merge_script[(tokens[i], tokens[i+1])]) # utilizando a chave de par do dicionario, é adcionado o novo id
+                itr_merges += 1 # ocorreu um merge, itr_merge != total_merge, logo haverá mais uma iteração no while externo
+                i += 2 # pula o par
+            else:
+                # repete o id da lista e prossegue
+                new_tokens.append(tokens[i])
+                i += 1
+
+        tokens = list(new_tokens) # como new_tokens será zerado, tokens recebe a copia do new_tokens atual
+        
+    return tokens
+
+def decode(tkn_ids):
+    return text
