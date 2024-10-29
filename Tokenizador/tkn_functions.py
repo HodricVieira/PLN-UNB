@@ -60,7 +60,12 @@ def train(list_ids, vocab_size):
         
         id_lista = merge(id_lista, merge_target) # a lista é reescrita com o novo id
 
-    return merge_script, id_adj_list
+    # cria um mapeamente entre os ids e seu byte correspondente já utilizando o novos id do merge, será usado no decode
+    vocab = {index: bytes([index]) for index in range(256)}
+    for (i, j), index in merge_script.items():
+        vocab[index] = vocab[i] + vocab[j]
+
+    return merge_script, id_adj_list, vocab
 
 def encode(text, merge_script, id_adj_list):
     tokens = list(text.encode("UTF-8")) # encodamento inicial em utf-8
@@ -86,5 +91,7 @@ def encode(text, merge_script, id_adj_list):
         
     return tokens
 
-def decode(tkn_ids):
+def decode(tkn_ids, vocab):
+    tokens = b"".join(vocab[index] for index in tkn_ids) # concatenação dos ids
+    text = tkn_ids.decode("UTF-8", errors="replace")
     return text
