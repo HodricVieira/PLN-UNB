@@ -4,6 +4,9 @@ def pre_processing(text):
     top_id = 255
     return tkn_ids, top_id
 
+
+
+
 def map_ids(list_ids, top_id):
     id_matrix = [[0 for _ in range(top_id)] for _ in range(top_id)] # cria uma matriz nxn com 0 para cada elemento
     top_repetition = 0
@@ -27,6 +30,8 @@ def map_ids(list_ids, top_id):
     return merge_target
 
 
+
+
 def merge(list_ids, merge_target):
     new_id = max(list_ids)+1 # o novo indice é o maior indice atual + 1
     new_list = [] 
@@ -42,6 +47,9 @@ def merge(list_ids, merge_target):
             i += 1
 
     return new_list
+
+
+
 
 def train(text, vocab_size):
     list_ids, top_id = pre_processing(text) # transforma o texto em ids
@@ -78,6 +86,10 @@ def train(text, vocab_size):
         vocab[index] = vocab[i] + vocab[j]
 
     return merge_script, id_adj_list, vocab
+
+
+
+
 
 def encode(text, merge_script, id_adj_list):
     tokens, top_id = pre_processing(text)
